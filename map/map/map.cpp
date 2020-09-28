@@ -6,10 +6,11 @@
 #include <algorithm>
 #include <random>
 #include <omp.h>
+#include <chrono>
 
 using namespace std;
 
-const long N = 2000000000;
+const long N = 20000000;
 
 auto my_rand() -> auto {
 	// First create an instance of an engine.
@@ -24,41 +25,48 @@ auto my_rand() -> auto {
 
 }
 
-double map1(vector<int> &arr) {
+auto my_rand2() -> auto {
+	return []() {
+		return rand();
+	};
 
-	auto start = omp_get_wtime();
+}
+
+auto map1(vector<int> &arr) {
+
+	auto start = chrono::steady_clock::now();
 	for_each(arr.begin(), arr.end(),
 		[](int& i) {
 			i = i * 2;
 		}
 	);
-	auto end = omp_get_wtime();
+	auto end = chrono::steady_clock::now();
 
-	return end - start;
+	return chrono::duration_cast<chrono::milliseconds>(end - start).count();
 }
 
-double map2(vector<int>& arr) {
+auto map2(vector<int>& arr) {
 
-	auto start = omp_get_wtime();
+	auto start = chrono::steady_clock::now();
 	for (long i = 0; i < N; ++i) {
 		arr[i] *= 2;
 	}
-	auto end = omp_get_wtime();
+	auto end = chrono::steady_clock::now();
 
-	return end - start;
+	return chrono::duration_cast<chrono::milliseconds>(end - start).count();
 }
 
-double map3(vector<int>& arr) {
+auto map3(vector<int>& arr) {
 
-	auto start = omp_get_wtime();
+	auto start = chrono::steady_clock::now();
 #pragma omp parallel 
 	#pragma omp taskloop
 	for (long i = 0; i < N; ++i) {
 		arr[i] *= 2;
 	}
-	auto end = omp_get_wtime();
+	auto end = chrono::steady_clock::now();
 
-	return end - start;
+	return chrono::duration_cast<chrono::milliseconds>(end - start).count();
 }
 
 int main()
@@ -67,23 +75,23 @@ int main()
 
 	vector<int> arr(N);
 
-	auto gen = my_rand();
+	auto gen = my_rand2();
 
 	cout << "arr is " << arr.size() << " elements\n";
 
 	generate(begin(arr), end(arr), gen);
 
 	// the map
-	cout << "map 1 took " << map1(arr) << " seconds." << endl;
-	cout << "map 1 took " << map1(arr) << " seconds." << endl;
+	cout << "map 1 took " << map1(arr) << " ms." << endl;
+	cout << "map 1 took " << map1(arr) << " ms." << endl;
 
 	// the map
-	cout << "map 2 took " << map2(arr) << " seconds." << endl;
-	cout << "map 2 took " << map2(arr) << " seconds." << endl;
+	cout << "map 2 took " << map2(arr) << " ms." << endl;
+	cout << "map 2 took " << map2(arr) << " ms." << endl;
 
 	// the map
-	cout << "map 3 took " << map3(arr) << " seconds." << endl;
-	cout << "map 3 took " << map3(arr) << " seconds." << endl;
+	cout << "map 3 took " << map3(arr) << " ms." << endl;
+	cout << "map 3 took " << map3(arr) << " ms." << endl;
 
 	return 0;
 }
