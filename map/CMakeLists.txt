@@ -17,6 +17,7 @@ target_link_libraries(map_main maplib)
 # TODO: Add tests and install targets if needed.
 find_package(Catch2 REQUIRED)
 add_executable(map_tests test_map.cpp)
+#target_include_directories(map_tests PUBLIC /usr/local/include)
 target_link_libraries(map_tests Catch2::Catch2 maplib)
 
 include(CTest)
