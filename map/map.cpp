@@ -67,8 +67,7 @@ void map_openmp(vector<int> &arr, std::function<int(int)> const &foo) {
 
 void map_tbb(vector<int> &arr, std::function<int(int)> const &foo) {
 
-    parallel_for((size_t) 0, arr.size(), foo);
-
+    parallel_for((size_t) 0, arr.size(), [&](int i) { arr[i] = foo(arr[i]); });
 }
 
 double

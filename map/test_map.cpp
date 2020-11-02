@@ -9,13 +9,9 @@ using namespace std;
 using namespace std::chrono;
 
 auto my_rand() -> auto {
-    // First create an instance of an engine.
-    random_device rnd_device;
-    // Specify the engine and distribution.
-    mt19937 mersenne_engine{rnd_device()}; // Generates random integers
-    uniform_int_distribution<int> dist{1, 52};
-
-    return [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
+    return []() {
+        return rand();
+    };
 }
 
 TEST_CASE("Map stl works OK", "[map function]") {
@@ -79,7 +75,9 @@ TEST_CASE("TBB Map works OK", "[map function]") {
     vector<int> vec1{1, 2, 3, 4, 5, 6};
     vector<int> vec2{2, 4, 6, 8, 10, 12};
 
-    map_tbb(vec1, [](int i) { return i * 2; });
+    map_tbb(vec1, [](int i) {
+        return i * 2;
+    });
     REQUIRE(vec1 == vec2);
 }
 

@@ -8,28 +8,18 @@
 using namespace std;
 
 
-auto my_rand2() -> auto {
+auto my_rand() -> auto {
     return []() {
         return rand();
     };
 }
 
 
-auto my_rand() -> auto {
-    // First create an instance of an engine.
-    random_device rnd_device;
-    // Specify the engine and distribution.
-    mt19937 mersenne_engine{rnd_device()}; // Generates random integers
-    uniform_int_distribution<int> dist{1, 52};
-
-    return [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
-}
-
 int main() {
     const auto N{200000000ul};
     vector<int> arr(N);
 
-    auto gen = my_rand2();
+    auto gen = my_rand();
 
     cout << "arr is " << arr.size() << " elements\n";
     cout << "using " << std::thread::hardware_concurrency() << " threads\n";
