@@ -12,7 +12,7 @@ fn main() {
     let mut seq2_duration = Duration::new(0,0);
 
     for _ in 0..N {
-        let mut arr: Vec<i64> = (0..200000000).map(|_| rng.gen_range(-100, 100)).collect();
+        let mut arr: Vec<i64> = (0..200000000).map(|_| rng.gen_range(-10000, 10000)).collect();
         let arr_copy = arr.clone();
 
         let start = Instant::now();
@@ -38,4 +38,30 @@ fn map_seq2(mut arr: Vec<i64>, foo: fn(&i64) -> i64) -> Vec<i64> {
     }
 
     arr
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_map_seq() {
+        let arr1 = vec![1, 2, 3, 4, 5, 6];
+        let arr2 = vec![2, 4, 6, 8, 10, 12];
+
+        let arr_result = map_seq(arr1, |i| i * 2);
+
+        assert_eq!(arr2, arr_result);
+    }
+
+    #[test]
+    fn test_map_seq2() {
+        let arr1 = vec![1, 2, 3, 4, 5, 6];
+        let arr2 = vec![2, 4, 6, 8, 10, 12];
+
+        let arr_result = map_seq2(arr1, |i| i * 2);
+
+        assert_eq!(arr2, arr_result);
+    }
 }
