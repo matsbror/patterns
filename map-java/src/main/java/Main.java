@@ -25,7 +25,7 @@ public class Main {
     Mapper mapper = new Mapper();
     Random randNum = new Random();
 
-    List<Integer> arr = IntStream.range(0, 200000000)
+    List<Integer> arr = IntStream.range(0, 100000000)
         .boxed()
         .map((i) -> randNum.nextInt())
         .collect(Collectors.toList());
@@ -47,9 +47,9 @@ public class Main {
 
     double seq_for_duration = (seq_for_end - start) / 10000.0;
     double par_for_duration = (par_for_end - seq_for_end) / 10000.0;
-    System.out.println("Seq map for took: " + seq_for_duration + "s");
+    System.out.println("Seq for map took: " + seq_for_duration + "s");
     System.out
-        .println("Par map took: " + par_for_duration + "s, speedup: "
+        .println("Par for map took: " + par_for_duration + "s, speedup: "
             + seq_for_duration / par_for_duration);
 
     start = System.currentTimeMillis();

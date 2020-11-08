@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  */
 public class Mapper {
 
-  ForkJoinPool pool = new ForkJoinPool();
+  ForkJoinPool pool = new ForkJoinPool(4);
 
   Mapper() {
 
@@ -21,7 +21,13 @@ public class Mapper {
   }
 
   public List<Integer> map_par_stream(List<Integer> arr, UnaryOperator<Integer> foo) {
-    return arr.stream().parallel().map(foo).collect(Collectors.toList());
+    try {
+      return pool.submit(() -> arr.stream().parallel().map(foo).collect(Collectors.toList())).get();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+      return new ArrayList<Integer>();
+    }
   }
 
   public List<Integer> map_seq_for(List<Integer> arr, UnaryOperator<Integer> foo) {
