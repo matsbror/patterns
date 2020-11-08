@@ -25,7 +25,7 @@ public class Main {
     Mapper mapper = new Mapper();
     Random randNum = new Random();
 
-    List<Integer> arr = IntStream.range(0, 100000000)
+    List<Integer> arr = IntStream.range(0, 50000000)
         .boxed()
         .map((i) -> randNum.nextInt())
         .collect(Collectors.toList());
