@@ -6,6 +6,7 @@ plugins {
 application {
     mainClass = "Main"
 }
+
 group 'org.example'
 version '1.0-SNAPSHOT'
 
