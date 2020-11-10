@@ -21,7 +21,7 @@ public class MapperTest {
   }
 
   @Test
-  public void map_par_stream() {
+  public void map_par_stream() throws Exception {
     List<Integer> arr1 = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6));
     List<Integer> arr2 = new ArrayList<Integer>(Arrays.asList(2, 4, 6, 8, 10, 12));
 
