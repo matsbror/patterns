@@ -78,4 +78,53 @@ public class Mapper {
     }
   }
 
+  public int[] arr_map_seq_for(int[] arr, UnaryOperator<Integer> foo) {
+    for (int i = 0; i < arr.length; i++) {
+      arr[i] = foo.apply(arr[i]);
+    }
+    return arr;
+  }
+
+  public int[] arr_map_par_for(int[] arr, UnaryOperator<Integer> foo) {
+    int procs = pool.getParallelism();
+    List<RecursiveAction> tasks = new ArrayList<>();
+    for (int p = 0; p < procs; p++) {
+      ArrLocalMap localMap = new ArrLocalMap(arr, procs, p, foo);
+      tasks.add(localMap);
+      pool.execute(localMap);
+    }
+
+    for (RecursiveAction t : tasks) {
+      t.join();
+    }
+
+    return arr;
+  }
+
+
+  private static class ArrLocalMap extends RecursiveAction {
+
+    int[] arr;
+    int procs;
+    int p;
+    UnaryOperator<Integer> foo;
+
+    public ArrLocalMap(int[] arr, int procs, int p, UnaryOperator<Integer> foo) {
+      this.arr = arr;
+      this.procs = procs;
+      this.p = p;
+      this.foo = foo;
+    }
+
+    @Override
+    protected void compute() {
+      int from = p * arr.length / procs;
+      int to = p == procs - 1 ? arr.length : (p + 1) * arr.length / procs;
+      for (int i = from; i < to; i++) {
+        arr[i] = foo.apply(arr[i]);
+      }
+    }
+  }
+
+
 }

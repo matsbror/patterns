@@ -25,17 +25,38 @@ public class Main {
     Mapper mapper = new Mapper();
     Random randNum = new Random();
 
+    int[] arrr = new int[50000000];
+    for (int i = 0; i < 50000000; i++) {
+      arrr[i] = randNum.nextInt();
+    }
+
     List<Integer> arr = IntStream.range(0, 50000000)
         .boxed()
         .map((i) -> randNum.nextInt())
         .collect(Collectors.toList());
 
     UnaryOperator<Integer> foo = (Integer n) -> {
-//      delay(10000);
       return n * 2;
     };
 
     long start = System.currentTimeMillis();
+    for (int i = 0; i < 10; i++) {
+      mapper.map_seq_for(arr, foo);
+    }
+    long arr_seq_for_end = System.currentTimeMillis();
+    for (int i = 0; i < 10; i++) {
+      mapper.map_par_for(arr, foo);
+    }
+    long arr_par_for_end = System.currentTimeMillis();
+
+    double arr_seq_for_duration = (arr_seq_for_end - start) / 10000.0;
+    double arr_par_for_duration = (arr_par_for_end - arr_seq_for_end) / 10000.0;
+    System.out.println("Seq for map took: " + arr_seq_for_duration + "s");
+    System.out
+        .println("Par for map took: " + arr_par_for_duration + "s, speedup: "
+            + arr_seq_for_duration / arr_par_for_duration);
+
+    start = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {
       mapper.map_seq_for(arr, foo);
     }
