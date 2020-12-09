@@ -50,13 +50,20 @@ int mapred_openmp(std::vector<int> &arr1, std::vector<int> &arr2){
     return sum;
 }
 
+struct result {
+    thread t;
+    int tresult;
+    int dummy[6];
+};
+
 int mapred_threads(std::vector<int> &arr1, std::vector<int> &arr2){
     const auto num_procs = std::thread::hardware_concurrency();
-    vector<thread> tpool(num_procs); // create a thread pool
-    vector<int> results(num_procs);
+    vector <result> results(num_procs);
+    // vector<thread> tpool(num_procs); // create a thread pool
+    // vector<int> results(num_procs);
 
     for (int p = 0; p < num_procs; p++) {
-        tpool[p] = thread([&arr1, &arr2, p, num_procs, &results]() {
+        results[p].t = thread([&arr1, &arr2, p, num_procs, &results]() {
             size_t my_start = arr1.size() / num_procs * p;
             size_t my_end = arr1.size() / num_procs * (p + 1);
             if (p + 1 == num_procs) {
@@ -66,14 +73,14 @@ int mapred_threads(std::vector<int> &arr1, std::vector<int> &arr2){
             for (long i = my_start; i < my_end; ++i) {
                 my_sum = my_sum + arr1[i] * arr2[i];
             }
-            results[p] = my_sum;
+            results[p].tresult = my_sum;
         });
     }
     // wait for threads to finish
     int sum = 0;
     for (int p = 0; p < num_procs; p++) {
-        tpool[p].join();
-        sum = sum + results[p];
+        results[p].t.join();
+        sum = sum + results[p].tresult;
     }
     return sum;
 }
