@@ -16,19 +16,30 @@ using namespace std::chrono;
 using namespace tbb;
 
 int mapred_stl(std::vector<int> &arr1, std::vector<int> &arr2) {
-    return transform_reduce(arr1.begin(), arr1.end(), arr2.begin(), std::plus, std::multiplies);
+    return transform_reduce(
+        arr1.begin(), arr1.end(), arr2.begin(), 
+        0,                                  // Initial value
+        [](int a, int b){return a+b;},      // reduction operator
+        [](int a, int b){return a*b;}      // map operator
+        );                           
+    
 }
 
 int mapred_parstl(std::vector<int> &arr1, std::vector<int> &arr2) {
+    return transform_reduce(
+        std::execution::par_unseq,
+        arr1.begin(), arr1.end(), arr2.begin(), 
+        0,
+        [](int a, int b){return a+b;},      // reduction operator
+        [](int a, int b){return a*b;});     // map operator
 
-    return transform_reduce(std::execution::par_unseq, arr1.begin(), arr1.end(), arr2.begin(), std::plus, std::multiplies);
 }
 
 int mapred_for(std::vector<int> &arr1, std::vector<int> &arr2){
 
     int sum = 0;
     for (long i = 0; i < arr1.size(); ++i) {
-        sum = std::plus(sum, std::multiplies(arr1[i], arr2[i]));
+        sum = sum + arr1[i] * arr2[i];
     }
     return sum;
 }
@@ -38,7 +49,7 @@ int mapred_openmp(std::vector<int> &arr1, std::vector<int> &arr2){
     int sum = 0;
     #pragma omp parallel for reduction(+:sum)
     for (long i = 0; i < arr1.size(); ++i) {
-        sum = std::plus(sum, std::multiplies(arr1[i], arr2[i]));
+        sum = sum + arr1[i] * arr2[i];
     }
     return sum;
 }
@@ -51,7 +62,7 @@ int mapred_threads(std::vector<int> &arr1, std::vector<int> &arr2){
     vector<int> results(num_procs);
 
     for (int p = 0; p < num_procs; p++) {
-        tpool[p] = thread([&arr1, &arr2, p, num_procs]() {
+        tpool[p] = thread([&arr1, &arr2, p, num_procs, &results]() {
             size_t my_start = arr1.size() / num_procs * p;
             size_t my_end = arr1.size() / num_procs * (p + 1);
             if (p + 1 == num_procs) {
@@ -59,45 +70,49 @@ int mapred_threads(std::vector<int> &arr1, std::vector<int> &arr2){
             }
             int my_sum = 0;
             for (long i = my_start; i < my_end; ++i) {
-                my_sum = std::plus(my_sum, std::multiplies(arr1[i], arr2[i]));
+                my_sum = my_sum + arr1[i] * arr2[i];
             }
-            result[p] = my_sum;
+            results[p] = my_sum;
         });
     }
+
 
     // wait for threads to finish
     int sum = 0;
     for (int p = 0; p < num_procs; p++) {
-        sum = sum + result[p]
         tpool[p].join();
+        sum = sum + results[p];
     }
 
     return sum;
 
 }
 
-int mapred_tbb(std::vector<int> &arr1, std::vector<int> &arr2){
+int mapred_tbb(vector<int> &arr1,vector<int> &arr2) {
 
-#pragma omp parallel for shared(arr, foo) num_threads(omp_get_num_procs())
-    for (long i = 0; i < arr.size(); ++i) {
-        arr[i] = foo(arr[i]);
-    }
-}
+    return tbb::parallel_reduce(
+        tbb::blocked_range<int>(0, arr1.size()),
+        0,
+        [&arr1, &arr2](tbb::blocked_range<int> r, int running_sum) {
+            for (int i=r.begin(); i<r.end(); ++i){
+                running_sum += arr1[i] * arr2[i];
+            }
+            return running_sum;
+        },
+        [](int a, int b) {return a+b;}
+        );
 
-void map_tbb(vector<int> &arr, std::function<int(int)> const &foo) {
-
-    parallel_for((size_t) 0, arr.size(), [&](int i) { arr[i] = foo(arr[i]); });
 }
 
 double
-time_a_map(vector<int> &arr, function<int(int)> const &foo,
-           function<void(vector<int> &arr, function<int(int)>)> const &map_function) {
+time_a_map(vector<int> &arr1, vector<int> &arr2, 
+    function<int(vector<int> &arr1,vector<int> &arr2)> const &map_function) {
 
     double acc{};
 
     for (int i = 0; i < 10; i++) {
         auto start = steady_clock::now();
-        map_function(arr, foo);
+        map_function(arr1, arr2);
         auto end = steady_clock::now();
 
         acc += duration<double>(end - start).count();
