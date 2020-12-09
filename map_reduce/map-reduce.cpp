@@ -53,7 +53,7 @@ int mapred_openmp(std::vector<int> &arr1, std::vector<int> &arr2){
 struct result {
     thread t;
     int tresult;
-    int dummy[6];
+    int dummy[12];
 };
 
 int mapred_threads(std::vector<int> &arr1, std::vector<int> &arr2){
