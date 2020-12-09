@@ -1,0 +1,1 @@
+/usr/bin/g++  -g   CMakeFiles/map_main.dir/main.cpp.o  -o map_main  -Wl,-rpath,/usr/local/lib libmaplib.a /usr/local/lib/libtbb.so -ltbbmalloc /usr/lib/gcc/x86_64-linux-gnu/10/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 

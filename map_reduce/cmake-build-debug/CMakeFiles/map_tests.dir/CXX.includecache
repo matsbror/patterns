@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mats/embe/patterns/map/map.h
+iostream
+-
+vector
+-
+functional
+-
+
+/home/mats/embe/patterns/map/test_map.cpp
+map.h
+/home/mats/embe/patterns/map/map.h
+catch2/catch.hpp
+-
+random
+-
+
